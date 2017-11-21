@@ -1,17 +1,25 @@
-var MicroEvent = require('../microevent-debug.js')
-function Foo () {}
-MicroEvent.mixin(Foo)
-f = new Foo
-b = new Foo
-f.bind("blerg", function(val){ console.log("f got blerg", val) })
+import { MicroEvent } from '../microevent.js';
 
-console.log("You should see 'f got blerg yes' and nothing more:");
-console.log("")
+class Foo {
+  constructor() {}
+}
 
-f.trigger("blerg", "yes")
-b.trigger("blerg", "no")
+MicroEvent.mixin(Foo);
+const foo = new Foo();
+const bar = new Foo();
+foo.bind('blerg', val => console.log(`foo got blerg ${val}`));
 
-c = {}
-MicroEvent.mixin(c)
-c.bind('foo',function(bar){console.log(bar)})
-c.trigger('foo','bar')
+console.log('1. You should see "foo got blerg yes" and nothing more:');
+
+foo.trigger('blerg', 'yes');
+bar.trigger('bar', 'no');
+
+console.log('');
+
+const c = {};
+MicroEvent.mixin(c);
+
+console.log('2. Now you should see "bar"');
+
+c.bind('foo', bar => console.log(bar));
+c.trigger('foo', 'bar');

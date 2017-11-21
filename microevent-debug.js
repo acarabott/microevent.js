@@ -4,48 +4,43 @@
  * # it is the same as MicroEvent.js but it adds checks to help you debug
 */
 
-var MicroEvent	= function(){}
-MicroEvent.prototype	= {
-	bind	: function(event, fct){
-		this._events = this._events || {};		
-		this._events[event] = this._events[event]	|| [];
-		this._events[event].push(fct);
-	},
-	unbind	: function(event, fct){
-		console.assert(typeof fct === 'function');
-		this._events = this._events || {};		
-		if( event in this._events === false  )	return;
-		console.assert(this._events[event].indexOf(fct) !== -1);
-		this._events[event].splice(this._events[event].indexOf(fct), 1);
-	},
-	trigger	: function(event /* , args... */){
-		this._events = this._events || {};		
-		if( event in this._events === false  )	return;
-		for(var i = 0; i < this._events[event].length; i++){
-			this._events[event][i].apply(this, Array.prototype.slice.call(arguments, 1))
-		}
-	}
-};
+export class MicroEvent {
+  constructor() {
+    this._events = {};
+  }
 
-/**
- * mixin will delegate all MicroEvent.js function in the destination object
- *
- * - require('MicroEvent').mixin(Foobar) will make Foobar able to use MicroEvent
- *
- * @param {Object} the object which will support MicroEvent
-*/
-MicroEvent.mixin	= function(destObject){
-	var props	= ['bind', 'unbind', 'trigger'];
-	for(var i = 0; i < props.length; i ++){
-		if( typeof destObject === 'function' ){
-			destObject.prototype[props[i]]	= MicroEvent.prototype[props[i]];
-		}else{
-			destObject[props[i]] = MicroEvent.prototype[props[i]];
-		}
-	}
-}
+  bind(event, func) {
+    if (!this._events.hasOwnProperty(event)) { this._events[event] = []; }
+    this._events[event].push(func);
+  }
 
-// export in common js
-if( typeof module !== "undefined" && ('exports' in module)){
-	module.exports	= MicroEvent
+  unbind(event, func) {
+    console.assert(typeof func === 'function');
+    if (this._events.hasOwnProperty(event)) {
+      console.assert(this._events[event].includes(func));
+      this._events[event].splice(this._events[event].indexOf(func), 1);
+    }
+  }
+
+  trigger(event, ...args) {
+    if (this._events.hasOwnProperty(event)) {
+      this._events[event].forEach(func => func(...args));
+    }
+  }
+
+  static mixin(obj) {
+    const target = typeof obj === 'function' ? obj.prototype : obj;
+    if (target.hasOwnProperty('_events')) {
+      throw new Error('target already has an "_events" property, cannot add MicroEvent mixin');
+    }
+    else {
+      target._events = {};
+    }
+
+    ['bind', 'unbind', 'trigger'].forEach(prop => {
+      target[prop] = MicroEvent.prototype[prop];
+    });
+
+    return obj;
+  }
 }

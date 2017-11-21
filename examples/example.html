@@ -1,30 +1,34 @@
 <!DOCTYPE html>
-<html> 
-<head></head> 
+<html>
+<head>
+  <title>MicroEvent.js example</title>
+</head>
 <body>
-	<script src="../microevent.js"></script>
-	<script>
-		/**
-		* Ticker is a class periodically sending out dummy tick events
-		*/
-		var Ticker	= function( interval ){
-			var self	= this;
-			setInterval(function(){
-				self.trigger('tick', new Date());
-			}, 500);
-		};
-		/**
-		* make Ticker support MicroEventjs
-		*/
-		MicroEvent.mixin(Ticker);
-		
-		// create a ticker
-		var ticker = new Ticker();
-		// bind the 'tick' event
-		ticker.bind('tick', function(date) {
-			// display to check
-			console.log('notified data'+ date);
-		});
-	</script>
-</body> 
-</html> 
+  <script type="module">
+    import { MicroEvent } from '../microevent.js';
+    /**
+    * Ticker is a class periodically sending out dummy tick events
+    */
+    class Ticker {
+        constructor() {
+            setInterval(() => {
+                this.trigger('tick', new Date());
+            }, 1000);
+        }
+    }
+
+    /**
+    * make Ticker support MicroEventjs
+    */
+    MicroEvent.mixin(Ticker);
+
+    // create a ticker
+    const ticker = new Ticker();
+    // bind the 'tick' event
+    ticker.bind('tick', (date) => {
+        // display to check
+        console.log(`notified date: ${date}`);
+    });
+  </script>
+</body>
+</html>

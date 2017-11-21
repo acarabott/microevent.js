@@ -2,23 +2,16 @@
 
 _MicroEvent.js_ is a event emitter library which provides the
 [observer pattern](http://en.wikipedia.org/wiki/Observer_pattern) to javascript objects.
-It works on node.js and browser. It is a single .js file containing
-a <a href="https://github.com/jeromeetienne/microevent.js/blob/master/microevent.js#L12-31">20 lines class</a>
-(only 321-bytes after minification+gzip).
+
+This is an ES2015 class + module fork of Jerome Etienne's [original project](https://github.com/jeromeetienne/microevent.js). Props to Jerome!
 
 ## How to Use It
 
-You need a single file [microevent.js](https://github.com/jeromeetienne/microevent.js/raw/master/microevent.js).
-Include it in a webpage via the usual script tag.
-
-```html
-<script src="microevent.js"></script>
-```
-
-To include it in a nodejs code isnt much harder
+You need a single file [microevent.js](https://github.com/acarabott/microevent.js/raw/master/microevent.js).
+Include it as a module
 
 ```js
-var MicroEvent = require('./microevent.js')
+import { MicroEvent } from './MicroEvent.js';
 ```
 
 Now suppose you got a class `Foobar`, and you wish it to support the observer partern. do
@@ -27,40 +20,48 @@ Now suppose you got a class `Foobar`, and you wish it to support the observer pa
 MicroEvent.mixin(Foobar)
 ```
 
-That's it. The repository contains an [example in browser](https://github.com/jeromeetienne/microevent.js/blob/master/examples/example.html)
-and an [example in nodejs](https://github.com/jeromeetienne/microevent.js/blob/master/examples/example.js).
-Both use the same code in different contexts. Let me walk you thru it.
+Node.js requires you to remove the ES2015 `export` and add this add the bottom of the file to export
+
+```
+// export in common js
+if(module !== undefined && ('exports' in module)) {
+    module.exports  = MicroEvent;
+}
+```
+
+The repository contains an [example in browser](https://github.com/acarabott/microevent.js/blob/master/examples/example.html)
 
 ## Example
 
-First we define the class which gonna use MicroEvent.js. This is a ticker, it is
-triggering 'tick' event every second, and add the current date as parameter
+First we define the class which will use MicroEvent.js. This is a ticker, it
+triggers 'tick' event every second, passing the current date as an argument.
 
 ```js
-var Ticker = function(){
-    var self = this;
-    setInterval(function(){
-        self.trigger('tick', new Date());
-    }, 1000);
-};
+class Ticker {
+    constructor() {
+        setInterval(() => {
+            this.trigger('tick', new Date());
+        }, 1000);
+    }
+}
 ```
 
-We mixin _MicroEvent_ into _Ticker_ and we are all set.
+We mixin `MicroEvent` into `Ticker` and we are all set.
 
 ```
 MicroEvent.mixin(Ticker);
 ```
 
-Now lets actually use the _Ticker_ Class. First, create the object.
+Now lets actually use the `Ticker` Class. First, create the object.
 
 ```js
-var ticker = new Ticker();
+const ticker = new Ticker();
 ```
 
-and bind our _tick_ event with its data parameter
+then bind our `tick` event with its date parameter
 
 ```js
-ticker.bind('tick', function(date) {
+ticker.bind('tick', (date) => {
     console.log('notified date', date);
 });
 ```
@@ -73,9 +74,15 @@ notified date Tue, 22 Mar 2011 14:43:42 GMT
 ...
 ```
 
+### Running the example
+
+At the time of writing only Chrome supports modules natively. You will want to use a transpiler such as Babel or Webpack to support other browsers.
+
+You will also need to use a web server to avoid CORS issues, I like [live-server](https://github.com/tapio/live-server)
+
 ## Conclusion
 
-MicroEvent.js is available on github <a href='https://github.com/jeromeetienne/microevent.js'>here</a>
-under <a href='https://github.com/jeromeetienne/microevent.js/blob/master/MIT-LICENSE.txt'>MIT license</a>.
+MicroEvent.js is available on github <a href='https://github.com/acarabott/microevent.js'>here</a>
+under <a href='https://github.com/acarabott/microevent.js/blob/master/MIT-LICENSE.txt'>MIT license</a>.
 If you hit bugs, fill issues on github.
 Feel free to fork, modify and have fun with it :)
